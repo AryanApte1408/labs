@@ -2,11 +2,10 @@ import streamlit as st
 
 st.set_page_config(page_title="Multi-Page Labs", page_icon="🔬", layout="centered")
 
-# Sidebar navigation
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Lab 1", "Lab 2"], index=1)  # Default = Lab 2
+# Put Lab 2 first so it opens by default
+nav = st.navigation([
+    st.Page("lab2.py", title="Lab 2", icon="2️⃣"),
+    st.Page("lab1.py", title="Lab 1", icon="1️⃣"),
+])
 
-if page == "Lab 1":
-    st.switch_page("pages/1_lab1.py")
-else:
-    st.switch_page("pages/2_lab2.py")
+nav.run()
