@@ -1,2 +1,6 @@
 streamlit
 openai
+pymupdf
+time
+os
+openai
