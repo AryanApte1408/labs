@@ -5,16 +5,12 @@ from openai import OpenAI
 
 # ========================= Helpers =========================
 def _get_openai_api_key() -> str | None:
-    # 1) Streamlit Cloud secrets
     try:
-        key = st.secrets["OPENAI_API_KEY"]
-        if key:
-            return key
+        return st.secrets["OPENAI_API_KEY"]
     except Exception:
         pass
-    # 2) Local .env fallback
     try:
-        from dotenv import load_dotenv  # type: ignore
+        from dotenv import load_dotenv
         load_dotenv()
     except Exception:
         pass
@@ -44,26 +40,26 @@ if "messages" not in st.session_state:
         {"role": "system", "content": "You are a helpful assistant for Lab 3."}
     ]
 
-# Show previous messages
 for msg in st.session_state.messages[1:]:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
 
-# Input box
 if prompt := st.chat_input("Say something..."):
-    # Store user message
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Get assistant reply
     with st.chat_message("assistant"):
         with st.spinner(f"Thinking with {model}..."):
-            resp = client.chat.completions.create(
-                model=model,
-                messages=st.session_state.messages,
-            )
-            reply = resp.choices[0].message.content
+            try:
+                # Use new Responses API (works across all models)
+                resp = client.responses.create(
+                    model=model,
+                    input=st.session_state.messages,
+                )
+                reply = resp.output_text
+            except Exception as e:
+                reply = f"⚠️ API error: {e}"
             st.markdown(reply)
 
     st.session_state.messages.append({"role": "assistant", "content": reply})
