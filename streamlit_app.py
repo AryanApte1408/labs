@@ -1,3 +1,15 @@
+# import streamlit as st
+
+# st.set_page_config(page_title="Multi-Page Labs", page_icon="🔬", layout="centered")
+
+# nav = st.navigation([
+#     st.Page("lab2.py", title="Lab 2 — Weighted PDF Summarizer"),
+#     st.Page("lab1.py", title="Lab 1 — Document Buddy"),
+# ])
+
+# nav.run()
+
+# streamlit_app.py
 import streamlit as st
 
 st.set_page_config(page_title="Multi-Page Labs", page_icon="🔬", layout="centered")
@@ -5,6 +17,7 @@ st.set_page_config(page_title="Multi-Page Labs", page_icon="🔬", layout="cente
 nav = st.navigation([
     st.Page("lab2.py", title="Lab 2 — Weighted PDF Summarizer"),
     st.Page("lab1.py", title="Lab 1 — Document Buddy"),
+    st.Page("lab3.py", title="Lab 3 — Chatbot"),   # ✅ new page
 ])
 
 nav.run()
