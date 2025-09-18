@@ -109,22 +109,21 @@
 #         st.warning("No results found.")
 
 # lab4.py — Lab 4: Build & Test a ChromaDB Collection
-
-# --- Fix for ChromaDB + Streamlit Cloud (force pysqlite3) ---
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-
 import os
+import sys
 import streamlit as st
-from openai import OpenAI
 import fitz  # PyMuPDF
 import chromadb
 from chromadb.utils import embedding_functions
+from openai import OpenAI
+
+# --- Fix for ChromaDB + Streamlit Cloud (SQLite versioning) ---
+__import__('pysqlite3')
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
 
 # ========================= Helpers =========================
 def _get_openai_api_key() -> str | None:
-    """Retrieve OpenAI API key from Streamlit secrets or .env."""
     try:
         return st.secrets["OPENAI_API_KEY"]
     except Exception:
@@ -175,6 +174,8 @@ def build_chroma_from_pdfs(pdf_folder: str, persist_dir: str):
 
     # Load PDFs
     pdf_files = [os.path.join(pdf_folder, f) for f in os.listdir(pdf_folder) if f.endswith(".pdf")]
+    if not pdf_files:
+        st.warning("⚠️ No PDF files found in lab4_docs. Did you upload them to your repo?")
     for path in pdf_files:
         text = read_pdf(path)
         if not text.strip():
@@ -195,8 +196,16 @@ st.set_page_config(page_title="Lab 4 — ChromaDB", layout="centered")
 st.title("Lab 4 — Build & Test a ChromaDB Collection")
 
 # ========================= Initialize =========================
-PDF_FOLDER = r"D:\Syracuse\HC-AI\labs\lab4_docs"  # update to relative path if deploying
+# Use relative path so it works on both local + cloud
+PDF_FOLDER = os.path.join(os.path.dirname(__file__), "lab4_docs")
 PERSIST_DIR = os.path.join(PDF_FOLDER, "chroma_store")
+
+# Debug info
+st.write("📂 Looking for PDFs in:", PDF_FOLDER)
+if os.path.exists(PDF_FOLDER):
+    st.write("Found files:", os.listdir(PDF_FOLDER))
+else:
+    st.error("❌ PDF folder not found. Make sure `lab4_docs/` exists in your repo.")
 
 if "Lab4_vectorDB" not in st.session_state:
     st.session_state.Lab4_vectorDB = build_chroma_from_pdfs(PDF_FOLDER, PERSIST_DIR)
