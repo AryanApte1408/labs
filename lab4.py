@@ -5,6 +5,17 @@ from openai import OpenAI
 import fitz  # PyMuPDF
 import chromadb
 from chromadb.utils import embedding_functions
+import streamlit as st
+from openai import OpenAI
+import os
+from PyPDF2 import PdfReader
+
+# --- Fix for ChromaDB + Streamlit Cloud ---
+__import__('pysqlite3')
+import sys
+sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+
+import chromadb
 
 # ========================= Helpers =========================
 def _get_openai_api_key() -> str | None:

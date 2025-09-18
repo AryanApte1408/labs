@@ -1,4 +1,43 @@
+# # Core
+# streamlit
+# openai
+# tiktoken
+# chromadb
+# python-dotenv
+
+# # PDF processing
+# pymupdf # PyMuPDF for PDF text extraction
+
+# # Web + scraping
+# requests
+# beautifulsoup43
+
+# # Hugging Face / Transformers
+# huggingface-hub
+# transformers
+# torch
+# accelerate
+# bitsandbytes
+
+# # Google Gemini
+# google-generativeai
+
+# # Data / utils
+# pandas
+# numpy
+# scikit-learn
+
+# # Misc
+# altair
+# jinja2
+# tqdm
+
+
+# protobuf==3.20
+
 streamlit
 openai
-pymupdf
-tiktoken
+chromadb
+pysqlite3-binary
+PyPDF2
+protobuf==3.20
