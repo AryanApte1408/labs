@@ -42,4 +42,6 @@ pysqlite3-binary
 PyPDF2
 protobuf==3.20
 fitz
-
+numpy
+tqdm
+google-generativeai
