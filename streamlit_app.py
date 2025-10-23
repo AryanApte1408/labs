@@ -38,6 +38,7 @@ nav = st.navigation([
     st.Page("lab3.py", title="Lab 3 — Chatbot"),
     st.Page("lab4.py", title="Lab 4 — ChromaDB"),
     st.Page("lab5.py", title="Lab 5 — What to Wear Bot"),
+    st.Page("lab6.py", title="Lab 6 — AI-Fact checker"),
 ])
 
 nav.run()
