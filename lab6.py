@@ -22,7 +22,7 @@ def _get_openai_api_key() -> str | None:
 
 def fact_check_claim(claim: str, client: OpenAI) -> Dict[str, Any]:
     """
-    Fact-checks a claim using OpenAI GPT-5-chat with structured JSON output.
+    Fact-checks a claim using OpenAI gpt-5 with structured JSON output.
     
     Args:
         claim: The factual claim to verify
@@ -87,9 +87,9 @@ Prioritize:
 
 Include 3-5 sources when possible. Be thorough but concise."""
 
-        # Call OpenAI API with GPT-5-chat
+        # Call OpenAI API with gpt-5
         response = client.chat.completions.create(
-            model="gpt-5-chat",  # ✅ Using GPT-5-chat
+            model="gpt-5",  # ✅ Using gpt-5
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": f"Fact-check this claim: {claim}"}
@@ -161,7 +161,7 @@ st.set_page_config(
 )
 
 st.title("🔍 Lab 6 — AI Fact-Checker + Citation Builder")
-st.markdown("*Verify claims with GPT-5-chat powered research and evidence-based citations*")
+st.markdown("*Verify claims with gpt-5 powered research and evidence-based citations*")
 
 # ========================= API Key Check =========================
 openai_api_key = _get_openai_api_key()
@@ -177,7 +177,7 @@ client = OpenAI(api_key=openai_api_key)
 with st.sidebar:
     st.header("ℹ️ About")
     st.info("""
-    This tool uses OpenAI's **GPT-5-chat** to:
+    This tool uses OpenAI's **gpt-5** to:
     - Analyze factual claims
     - Provide evidence-based verdicts
     - Generate credible citations
@@ -201,8 +201,8 @@ with st.sidebar:
     
     st.divider()
     
-    st.caption("💡 **Note:** GPT-5-chat provides enhanced reasoning capabilities")
-    st.caption("🔬 **Model:** GPT-5-chat")
+    st.caption("💡 **Note:** gpt-5 provides enhanced reasoning capabilities")
+    st.caption("🔬 **Model:** gpt-5")
 
 # ========================= Initialize Session State =========================
 if 'claim_history' not in st.session_state:
@@ -231,7 +231,7 @@ with col2:
 
 # ========================= Fact-Checking Logic =========================
 if check_button and user_claim:
-    with st.spinner("🔎 Researching and verifying your claim with GPT-5-chat..."):
+    with st.spinner("🔎 Researching and verifying your claim with gpt-5..."):
         result = fact_check_claim(user_claim, client)
         
         # Add to history
@@ -289,7 +289,7 @@ if check_button and user_claim:
     # Metadata
     with st.expander("ℹ️ Additional Information"):
         st.write(f"**Timestamp:** {result.get('last_updated', 'N/A')}")
-        st.write(f"**Model:** GPT-5-chat")
+        st.write(f"**Model:** gpt-5")
         st.write(f"**Mode:** Structured JSON Output")
     
     # Raw JSON
@@ -331,19 +331,19 @@ with st.expander("💭 Lab 6 Reflection & Discussion"):
     
     #### 1. How did the model's reasoning feel different from a standard chat model?
     
-    **GPT-5-chat Structured Output Benefits:**
+    **gpt-5 Structured Output Benefits:**
     - ✅ **Consistency**: JSON format ensures predictable, parseable responses
     - ✅ **Accountability**: Explicit verdicts and confidence levels (no hedging)
     - ✅ **Transparency**: Clear attribution of sources and reasoning
     - ✅ **Task-Focused**: Designed specifically for fact-checking, not casual chat
-    - ✅ **Enhanced Reasoning**: GPT-5-chat provides deeper analytical capabilities
+    - ✅ **Enhanced Reasoning**: gpt-5 provides deeper analytical capabilities
     
     **Key Differences from Standard Chat:**
     - Standard chat models can be vague or conversational
     - Fact-checker provides binary/categorical verdicts
     - Structured format enables programmatic processing
     - Research-oriented rather than dialogue-oriented
-    - GPT-5-chat offers improved accuracy and nuance
+    - gpt-5 offers improved accuracy and nuance
     
     ---
     
@@ -353,7 +353,7 @@ with st.expander("💭 Lab 6 Reflection & Discussion"):
     - ✅ Prioritizes authoritative domains (.gov, .edu, .org)
     - ✅ References peer-reviewed journals and medical institutions
     - ✅ Includes fact-checking organizations
-    - ⚠️ **Note**: Sources are AI-generated based on GPT-5-chat's knowledge
+    - ⚠️ **Note**: Sources are AI-generated based on gpt-5's knowledge
     
     **For Production Use:**
     - Integrate real web search APIs (Brave Search, Google Custom Search)
@@ -373,14 +373,14 @@ with st.expander("💭 Lab 6 Reflection & Discussion"):
     **🔍 Trust Building:**
     - **Verifiability**: Users can click through to sources
     - **Transparency**: Clear reasoning and evidence chain
-    - **Reproducibility**: Consistent results with GPT-5-chat
+    - **Reproducibility**: Consistent results with gpt-5
     - **Attribution**: No "black box" — sources are explicit
     
-    **🎯 Accuracy Enhancement with GPT-5-chat:**
+    **🎯 Accuracy Enhancement with gpt-5:**
     - **Grounding**: Claims tied to external evidence
     - **Reduced Hallucination**: Less invention of facts
     - **Cross-Validation**: Multiple sources confirm findings
-    - **Superior Reasoning**: GPT-5-chat's advanced capabilities
+    - **Superior Reasoning**: gpt-5's advanced capabilities
     - **Real-Time Data**: (With proper APIs) Up-to-date information
     
     **📊 Confidence Calibration:**
@@ -417,7 +417,7 @@ with st.expander("💭 Lab 6 Reflection & Discussion"):
     - Compare multiple fact-checks
     - Visualize source diversity
     
-    **4. Advanced Analysis with GPT-5-chat**
+    **4. Advanced Analysis with gpt-5**
     - Detect claim complexity
     - Identify missing context
     - Show evidence conflicts
@@ -429,12 +429,12 @@ with st.expander("💭 Lab 6 Reflection & Discussion"):
     ### 📊 Technical Implementation Notes
     
     **This Lab Uses:**
-    - **GPT-5-chat** for enhanced reasoning and accuracy
+    - **gpt-5** for enhanced reasoning and accuracy
     - JSON mode (`response_format={"type": "json_object"}`)
     - Temperature 0.3 for consistency
     - Structured system prompts for reliable output
     
-    **GPT-5-chat Advantages:**
+    **gpt-5 Advantages:**
     - Superior analytical capabilities
     - Better handling of complex claims
     - More nuanced verdicts
@@ -449,4 +449,4 @@ with st.expander("💭 Lab 6 Reflection & Discussion"):
 
 # ========================= Footer =========================
 st.divider()
-st.caption("Built with Streamlit + OpenAI GPT-5-chat • Lab 6: AI Fact-Checker + Citation Builder")
+st.caption("Built with Streamlit + OpenAI gpt-5 • Lab 6: AI Fact-Checker + Citation Builder")
