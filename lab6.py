@@ -28,8 +28,7 @@ def _get_openai_api_key() -> str | None:
 
 def fact_check_claim(claim: str, client: OpenAI) -> Dict[str, Any]:
     """
-    Fact-checks a claim using OpenAI gpt-5 with structured JSON output.
-    Returns: dictionary containing verdict, explanation, confidence, sources, timestamp.
+    Fact-check a claim using OpenAI gpt-5 with structured JSON output.
     """
     if not client:
         return {
@@ -42,42 +41,41 @@ def fact_check_claim(claim: str, client: OpenAI) -> Dict[str, Any]:
         }
 
     try:
-        # System prompt
-        system_prompt = """You are an expert fact-checker and research assistant. Your job is to:
+        # ------------------------------------------------------------
+        # System Prompt
+        # ------------------------------------------------------------
+        system_prompt = """You are an expert fact-checker and research assistant.
+Your task is to:
+1. Analyze the user's claim.
+2. Evaluate evidence from multiple perspectives.
+3. Provide a verdict (TRUE, FALSE, PARTIALLY TRUE, or UNVERIFIED).
+4. Explain reasoning clearly.
+5. Include 3–5 credible sources with short snippets.
 
-1. Analyze the given claim carefully and identify key assertions.
-2. Research the claim using your reasoning and current knowledge.
-3. Evaluate evidence from multiple perspectives.
-4. Provide a verdict: TRUE, FALSE, PARTIALLY TRUE, or UNVERIFIED.
-5. Explain reasoning with evidence.
-6. Provide credible sources supporting your analysis.
-
-Respond ONLY in valid JSON:
+Respond ONLY in this exact JSON format:
 {
-    "claim": "the original claim verbatim",
-    "verdict": "TRUE/FALSE/PARTIALLY TRUE/UNVERIFIED",
-    "confidence": "HIGH/MEDIUM/LOW",
-    "explanation": "Detailed reasoning and evidence.",
-    "sources": [
-        {"title": "Source title", "url": "https://example.com", "snippet": "Relevant quote or summary"}
-    ],
-    "last_updated": "YYYY-MM-DD HH:MM:SS"
+  "claim": "the claim verbatim",
+  "verdict": "TRUE/FALSE/PARTIALLY TRUE/UNVERIFIED",
+  "confidence": "HIGH/MEDIUM/LOW",
+  "explanation": "Detailed reasoning, context, and evidence.",
+  "sources": [
+    {"title": "Source title", "url": "https://example.com", "snippet": "Relevant quote"}
+  ],
+  "last_updated": "YYYY-MM-DD HH:MM:SS"
 }
 
-Verdict guidelines:
-- TRUE: Strong, consistent evidence supports claim.
-- FALSE: Clear evidence refutes claim.
-- PARTIALLY TRUE: Mix of true and false elements.
-- UNVERIFIED: Not enough reliable evidence.
-
-Source priority:
-- Peer-reviewed journals (.edu)
-- Government agencies (.gov)
-- Trusted orgs (.org: WHO, CDC, Mayo Clinic)
-- Fact-checking orgs (Snopes, PolitiFact)
+Guidelines:
+- Use peer-reviewed, .gov, .edu, .org, and fact-checking sites.
+- Verdict rules:
+  - TRUE: Supported by strong evidence
+  - FALSE: Contradicted by evidence
+  - PARTIALLY TRUE: Contains mixed accuracy
+  - UNVERIFIED: Insufficient evidence
 """
 
-        # ✅ Fixed: Use max_completion_tokens instead of max_tokens
+        # ------------------------------------------------------------
+        # OpenAI Call (fixed)
+        # ------------------------------------------------------------
         response = client.chat.completions.create(
             model="gpt-5",
             messages=[
@@ -85,23 +83,19 @@ Source priority:
                 {"role": "user", "content": f"Fact-check this claim: {claim}"}
             ],
             response_format={"type": "json_object"},
-            temperature=0.3,
-            max_completion_tokens=2000
+            max_completion_tokens=2000  # ✅ correct param
         )
 
-        # Parse JSON
         result_text = response.choices[0].message.content
         result = json.loads(result_text)
 
-        # Ensure timestamp
         if "last_updated" not in result:
             result["last_updated"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        # Ensure all keys
         required_fields = ["claim", "verdict", "confidence", "explanation", "sources"]
-        for field in required_fields:
-            if field not in result:
-                result[field] = "N/A" if field != "sources" else []
+        for f in required_fields:
+            if f not in result:
+                result[f] = "N/A" if f != "sources" else []
 
         return result
 
@@ -110,7 +104,7 @@ Source priority:
             "claim": claim,
             "verdict": "ERROR",
             "confidence": "N/A",
-            "explanation": f"Failed to parse response as JSON: {e}",
+            "explanation": f"Failed to parse JSON: {e}",
             "sources": [],
             "last_updated": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
@@ -126,7 +120,7 @@ Source priority:
 
 
 def format_sources_as_markdown(sources: list) -> str:
-    """Format sources for display"""
+    """Format sources for display in markdown."""
     if not sources:
         return "*No sources available*"
     out = ""
@@ -152,21 +146,21 @@ st.markdown("*Verify claims with gpt-5 powered research and evidence-based citat
 # ================================================================
 openai_api_key = _get_openai_api_key()
 if not openai_api_key:
-    st.error("⚠️ Missing OPENAI_API_KEY. Please add it in `.streamlit/secrets.toml` or as env variable.")
+    st.error("⚠️ Missing OPENAI_API_KEY. Add it in `.streamlit/secrets.toml` or as an env variable.")
     st.stop()
 client = OpenAI(api_key=openai_api_key)
 
 # ================================================================
-# Sidebar UI
+# Sidebar
 # ================================================================
 with st.sidebar:
     st.header("ℹ️ About")
     st.info("""
     This tool uses **gpt-5** to:
     - Analyze factual claims  
-    - Provide verdicts with confidence  
+    - Provide evidence-based verdicts  
     - Generate credible citations  
-    - Build transparency through sources  
+    - Increase transparency and trust  
     """)
     st.divider()
 
@@ -183,7 +177,7 @@ with st.sidebar:
             st.session_state.user_claim = ex
 
     st.divider()
-    st.caption("💡 Note: gpt-5 provides enhanced reasoning and structured output.")
+    st.caption("💡 Note: gpt-5 provides structured, reasoning-based outputs.")
 
 # ================================================================
 # Session State
@@ -194,7 +188,7 @@ if "user_claim" not in st.session_state:
     st.session_state.user_claim = ""
 
 # ================================================================
-# Main Input Area
+# Input
 # ================================================================
 user_claim = st.text_input(
     "**Enter a factual claim to verify:**",
@@ -228,11 +222,11 @@ if run_check and user_claim.strip():
     confidence = result.get("confidence", "N/A")
 
     verdict_map = {
-        "TRUE": {"icon": "🟢", "color": "#28a745"},
-        "FALSE": {"icon": "🔴", "color": "#dc3545"},
-        "PARTIALLY TRUE": {"icon": "🟡", "color": "#ffc107"},
-        "UNVERIFIED": {"icon": "⚪", "color": "#6c757d"},
-        "ERROR": {"icon": "⚫", "color": "#343a40"}
+        "TRUE": {"icon": "🟢"},
+        "FALSE": {"icon": "🔴"},
+        "PARTIALLY TRUE": {"icon": "🟡"},
+        "UNVERIFIED": {"icon": "⚪"},
+        "ERROR": {"icon": "⚫"}
     }
     cfg = verdict_map.get(verdict, {"icon": "⚪"})
 
@@ -252,7 +246,7 @@ if run_check and user_claim.strip():
     if srcs:
         st.markdown(format_sources_as_markdown(srcs))
     else:
-        st.warning("⚠️ No sources were provided for this claim.")
+        st.warning("⚠️ No sources provided for this claim.")
 
     with st.expander("ℹ️ Additional Information"):
         st.write(f"**Timestamp:** {result.get('last_updated','N/A')}")
@@ -266,7 +260,7 @@ elif run_check:
     st.warning("⚠️ Please enter a valid claim before checking.")
 
 # ================================================================
-# Claim History
+# History
 # ================================================================
 if st.session_state.claim_history:
     st.divider()
@@ -288,25 +282,23 @@ if st.session_state.claim_history:
                 st.write("*No sources available*")
 
 # ================================================================
-# Reflection Section
+# Reflection
 # ================================================================
 st.divider()
 with st.expander("💭 Lab 6 Reflection & Discussion"):
     st.markdown("""
     ### 🤔 Reflection
-    **1. How did the model’s reasoning differ from chat models?**
-    - gpt-5 provided structured, verifiable JSON results.
-    - Each verdict had explicit confidence levels.
-    - Explanations cited sources directly.
+    **1. Model Reasoning vs. Chat Models**
+    - gpt-5 uses structured JSON instead of conversational output.
+    - Clear verdicts, evidence, and confidence levels.
 
-    **2. Were the sources credible and diverse?**
-    - Focused on .gov, .edu, and .org domains.
-    - Represented peer-reviewed and factual outlets.
+    **2. Credibility & Diversity**
+    - Prioritizes .gov, .edu, and .org domains.
+    - Encourages evidence triangulation from multiple perspectives.
 
-    **3. How does this enhance trust?**
-    - Transparent evidence chain.
-    - Reproducible, structured outputs.
-    - Easy to audit and export.
+    **3. Trust & Transparency**
+    - Every result includes reasoning and sources.
+    - Easy to audit and replicate fact-checks.
     """)
 
 # ================================================================
